@@ -54,12 +54,13 @@ fun
 
 -- PN
 
+	heather	: PN;
+	ms_forman	: PN;
+	heather_forman	: PN;
 	mrs_taylor	: PN;
 	mrs_harris	: PN;
 	mr_won	: PN;
 	mr_two	: PN;
-	jack_burr	: PN;
-	mr_burr	: PN;
 
 -- Prep
 
