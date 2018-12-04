@@ -16,12 +16,14 @@ lincat
 	SourcePrep	= Prep;
 	ResultPrep	= Prep;
 	PatientPrep	= Prep;
+	CopatientPrep	= Prep;
 	ExtentPrep	= Prep;
 	AttributePrep	= Prep;
 	StimulusPrep	= Prep;
 	ProductPrep	= Prep;
 	GoalPrep	= Prep;
 	BeneficiaryPrep	= Prep;
+	RecipientPrep	= Prep;
 	TrajectoryPrep	= Prep;
 	CausePrep	= Prep;
 	Adv_coagent	= Adv;
@@ -32,6 +34,7 @@ lincat
 	Adv_location	= Adv;
 	Adv_source	= Adv;
 	Adv_result	= Adv;
+	Adv_copatient	= Adv;
 	Adv_patient	= Adv;
 	Adv_extent	= Adv;
 	Adv_attribute	= Adv;
@@ -39,12 +42,15 @@ lincat
 	Adv_product	= Adv;
 	Adv_goal	= Adv;
 	Adv_beneficiary	= Adv;
+	Adv_recipient	= Adv;
 	Adv_trajectory	= Adv;
 	Adv_cause	= Adv;
 	MassDet = Det;
+	Postdet = {s : Str} ;
 	Partitive = Det;
 	ListAdv_manner	= ListAdv;
 	ListAdv_result	= ListAdv;
+	ListAdv_time	= ListAdv;
 
 param
   Auxiliary	= Do | Be | Should;
@@ -55,22 +61,35 @@ oper
 
 	no_Quant	= no_Quant;
 	some_Quant	= P.mkQuant "some" "some" "some" "some";
+	myAny_Quant	= P.mkQuant "any" "any" "any" "any";
 	every_Quant	= P.mkQuant "every" nonExist;
 	zero_mass_Quant = P.mkQuant "" nonExist;
 	more_Quant	= P.mkQuant "more" "more" "more" "more";
 
 	know_V = IrregEng.know_V;
 
-	ModalVV	: Str -> Str -> Str -> Str -> Str -> Str ->
+	myMkS : Tense -> Ant -> Pol -> Order -> Cl -> {s : Str} =
+		\t,a,p,o,cl -> {
+		s = cl.s ! t.t ! a.a ! p.p ! o;
+		lock_S = {}};
+
+	myMkQS : Tense -> Ant -> Pol -> QCl -> {s : QForm => Str} =
+		\t,a,p,qcl -> {
+		s = qcl.s ! t.t ! a.a ! p.p;
+		lock_QS = {}};
+
+
+
+	ModalVV	: Str -> Str -> Str ->
 		{s : VVForm => Str; p : Str; typ : VVType } =
-		\inf, pres, pp, prespp, presN, presNuncontr -> {
+		\pres, presN, presNuncontr -> {
 		s = table {
-			VVF VInf	=> inf ;
+			VVF VInf	=> nonExist ;
 			VVF VPres => pres;
-			VVF VPPart	=> pp ;
-			VVF VPresPart	=> prespp ;
-			-- VVF VPast	=> nonExist ;
-			-- VVPastNeg	=> nonExist ;
+			VVF VPPart	=> nonExist ;
+			VVF VPresPart	=> nonExist ;
+			VVF VPast	=> nonExist ;
+			VVPastNeg	=> nonExist ;
 			VVPresNeg	=> presN
 			} ;
 		p = [];
@@ -79,12 +98,13 @@ oper
 		} |
 	{
 		s = table {
-			VVF VInf	=> inf ;
+			VVF VInf	=> nonExist ;
 			VVF VPres => pres;
-			VVF VPPart	=> pp ;
-			VVF VPresPart	=> prespp ;
-			-- VVF VPast	=> nonExist ;
-			-- VVPastNeg	=> nonExist ;
+			VVF VPPart	=> nonExist ;
+			VVF VPresPart	=> nonExist ;
+			VVF VPast	=> nonExist ;
+			VVPastNeg	=> nonExist ;
+			VVF VPres => pres;
 			VVPresNeg	=> presNuncontr
 			} ;
 		p = [];
@@ -92,15 +112,18 @@ oper
 		lock_VV = {}
 		};
 
+		myComplVV : VV -> { s : Str; a : Anteriority } -> { s : Str; p : CPolarity } -> VP -> VP = \v,a,p,vp ->
+			insertObj (\\agr => a.s ++ p.s ++ infVP v.typ vp False a.a p.p agr) (predVV v);
+
 		myV_NP_NegVP	: V2V -> NP -> VP -> VP =
 			\v,np,vp -> UseV v **
-				{s2 = \\agr => np.s ! NPAcc ++ infVP VVInf vp Simul (CNeg True) agr}
+				{s2 = \\agr => np.s ! NPAcc ++ infVP VVInf vp False Simul (CNeg True) agr}
 			 ;
 
     mySlashNegVV : VV -> VPSlash -> VPSlash =
 			\vv,vp -> 
-      insertObj (\\a => infVP vv.typ vp Simul (CNeg False) a) (predVV vv) **
-        {c2 = vp.c2 ; gapInMiddle = vp.gapInMiddle} ;
+      insertObj (\\a => infVP vv.typ vp False Simul (CNeg False) a) (predVV vv) **
+        {c2 = vp.c2 ; gapInMiddle = vp.gapInMiddle ; missingAdv = False} ;
 
 	mkpronAgr : Agr -> NP = \ag -> case ag of {
 		AgP1 Sg => i_NP;
@@ -190,19 +213,19 @@ oper
 	myInfICl : (iadv : IAdv) -> (vp : VP) -> {s : ResEng.Tense => Anteriority => CPolarity => QForm => Str } =
 		\iadv,vp -> let qcl = mkSC vp in
 	{
-		s = \\t,a,p,_ => iadv.s ++ qcl.s
+		s = \\t,a,p,_ => iadv.s ++ qcl.s ! (AgP3Sg Neutr)
 		};
 
 	myFreeInfICl : (iadv : IAdv) -> (vp : VP) -> {s : ResEng.Tense => Anteriority => CPolarity => Order => Str; c : NPCase } =
 		\iadv,vp -> let qcl = mkSC vp in
 	{
-		s = \\t,a,p,_ => iadv.s ++ qcl.s;
+		s = \\t,a,p,_ => iadv.s ++ qcl.s ! (AgP3Sg Neutr);
 		c = npNom
 		};
 
 	myFreeInfCl :  (vp : VP) -> {s : ResEng.Tense => Anteriority => CPolarity => Order => Str; c : NPCase } =
 		\vp -> let cl = 
-    infVP VVAux vp Simul CPos (agrP3 Sg) ; --- agr
+    infVP VVAux vp False Simul CPos (agrP3 Sg) ; --- agr
 	in {
 		s = \\t,a,p,_ => cl ;
 		c = npNom
@@ -215,18 +238,17 @@ oper
 			a = agreement;
 		};
 
-	myCltoNP : (str : Str) -> (cl : Cl) -> {s : NPCase => Str ; a : Agr} =
-		\str,cl -> let np = str ++ cl.s ! Pres ! Simul ! CPos ! oDir ;
+	myStoNP : (str : Str) -> (s : S) -> {s : NPCase => Str ; a : Agr} =
+		\str,s -> let np = str ++ s.s;
 								agreement = toAgr Sg P3 Neutr in {
 			s = \\_ => np;
 			a = agreement;
 		};
 
-	myNegCltoNP : (str : Str) -> (cl : Cl) -> {s : NPCase => Str ; a : Agr} =
-		\str,cl -> let np = str ++ cl.s ! Pres ! Simul ! (CNeg True) ! oDir ;
-								agreement = toAgr Sg P3 Neutr in {
+	myRStoNP : (str : Str) -> (rs : RS) -> {s : NPCase => Str ; a : Agr} =
+		\str,rs -> let ag = toAgr Sg P3 Neutr; np = str ++ rs.s ! ag in {
 			s = \\_ => np;
-			a = agreement;
+			a = ag;
 		};
 
 	myNPbodything : (quant : Quant) -> ( body : Str )-> {s : NPCase => Str ; a : Agr} =
@@ -265,9 +287,9 @@ oper
 
 
 	myDetVPtoNP : (det : Det) -> (vp : VP) -> { s : NPCase => Str ; a : Agr} = 
-		\det,vp -> let nom = det.s ++ (PartVP vp).s ! AgP3Pl Masc ;
+		\det,vp -> let nom = det.s ++ (EmbedPresPart vp).s ! AgP3Sg Neutr ;
 								gen = glue nom "'s";
-								agreement = toAgr det.n P3 Masc in {
+								agreement = toAgr Sg P3 Neutr in {
 			s = table {
 				NCase Nom => nom;
 				NCase Gen => gen;
@@ -277,7 +299,7 @@ oper
 		};
 
 	myNPVPtoNP : (np : NP) -> (vp : VP) -> { s : NPCase => Str ; a : Agr} = 
-		\np,vp -> let nom = np.s ! NCase Nom ++ (PartVP vp).s ! AgP3Pl Masc ;
+		\np,vp -> let nom = np.s ! NCase Nom ++ (EmbedPresPart vp).s ! AgP3Pl Masc ;
 								gen = glue nom "'s";
 								agreement = toAgr Sg P3 Neutr in {
 			s = table {
@@ -289,7 +311,7 @@ oper
 		};
 
 	myInfinitiveNP : (vp : VP) -> { s : NPCase => Str ; a : Agr} =
-	\vp -> let nom = infVP VVInf vp  Simul CPos (AgP3Sg Neutr) ;
+	\vp -> let nom = infVP VVInf vp False Simul CPos (AgP3Sg Neutr) ;
 					gen = glue nom "'s";
 					agreement = AgP3Sg Neutr in {
 				s = table {
@@ -369,6 +391,15 @@ oper
       isPre = False
       } ;
 
+  myAdvCN : (cn : N) -> (adv : Adv) -> { s : Number => Case => Str ; g : Gender } =
+    \cn,adv -> 
+    {
+      s = \\n,c => case c of {
+        Nom => cn.s ! n ! Nom ++ adv.s;
+        Gen => cn.s ! n ! Nom ++ (glue adv.s "'s") };
+      g = cn.g;
+    };
+
 	mymkN_Adv : (noun : N) -> (adv : Adv) -> { s : Number => Case => Str ; g : Gender } =
 		\noun,adv ->
 		{
@@ -390,17 +421,17 @@ oper
 			g = Neutr
 		} ;
 
-	myNPPostPredet : (np : NP) -> (pred : Predet) -> {s : NPCase => Str ; a : Agr} =
-	\np,pred ->
+	myNPPostdet : (np : NP) -> (post : Postdet) -> {s : NPCase => Str ; a : Agr} =
+	\np,post ->
 		{
-		s = \\c => np.s ! c ++ pred.s ;
+		s = \\c => np.s ! c ++ post.s ;
 		a = np.a
 		} ;
 
 	myCAdvCNNP : (cadv : CAdv) -> ( cn : CN ) -> ( np : NP ) -> { s : Number => Case => Str ; g : Gender } =
 	\cadv,cn,np ->
 		{
-		s = \\n,c => cadv.s ++ cn.s ! n ! c ++ cadv.p ++ np.s ! npNom;
+		s = \\n,c => cadv.s ! Pos ++ cn.s ! n ! c ++ cadv.p ++ np.s ! npNom;
 		g = cn.g};
 
 	myVPPlus : (vp : VP) -> (str : Str) -> {
@@ -493,31 +524,32 @@ lin
 	Instrumenting prep instrument = mkAdv prep instrument;
 	Themeing prep instrument = mkAdv prep instrument;
 	Mannering prep style = mkAdv prep style;
-	Timing prep time = mkAdv prep time;
+	Timing prep det time = mkAdv prep (Item det time);
 	Sourcing prep source = mkAdv prep source;
 	Resulting prep result = mkAdv prep result;
 	Patienting prep result = mkAdv prep result;
+	Copatienting prep result = mkAdv prep result;
 	Extenting prep degree	=mkAdv prep degree;
 	Attributing prep attribute	= mkAdv prep attribute;
 	Stimulating prep stimulus	= mkAdv prep stimulus;
 	Producing prep product	= mkAdv prep product;
 	Goaling, Benefiting
-	, Trajectoring, Causing = \prep, np -> mkAdv prep np;
-	Happening action	=	mkVP action;
+	, Receiving, Trajectoring, Causing = \prep, np -> mkAdv prep np;
+	V_ action	=	mkVP action;
 	V_NP v2 patient	= mkVP v2 patient;
 	V_NP_VP causal patient predicate	= mkVP causal patient predicate;
 	V_NP_NegVP v np vp	= myV_NP_NegVP v np vp;
 	Intens attitude predicate	= mkVP attitude predicate;
-	NegComplVV v vp = ComplVV v {s=[]; a=Simul} {s =[]; p= CNeg False } vp;
+	V_NegVP v vp = myComplVV v {s=[]; a=Simul} {s =[]; p= CNeg False } vp;
 	V_that_S posit event	= mkVP posit event;
 	V_S posit event	= ComplBareVS posit event;
-	V_SC posit event	= ComplBareVS posit event;
 	V_NP_that_S posit patient event	= mkVP posit patient event;
 	V_NP_S posit patient event = (ComplSlash (myThatlessSlashV2S posit event) patient);
 	V_Q	v topic= mkVP v topic;
 	V_NP_whether_S ask recipient topic = mkVP ask recipient topic;
   V_NP_NP v theme recipient = mkVP v theme recipient; 
   V_NP_AP v patient state = mkVP v patient state;
+	progressiveVP vp	= insertObj (\\a => vp.ad ! a ++ vp.prp ++ vp.p ++ vp.s2 ! a) (predAux auxBe) ;
   -- GetPassV3 v np = insertObj (\\_ => v.s ! VPPart ++ v.p ++ v.c2 ++ v.c3 ++ np.s ! NPAcc) (predAux auxGet) ;
   -- GetNPPPart v np = insertObj (\\_ => np.s ! NPAcc ++ v.s ! VPPart ++ v.p ++ v.c2 ) (predAux auxGet) ;
 	passive v = passiveVP v;
@@ -530,37 +562,44 @@ lin
 	V2VSlash v2v vp	= mkVPSlash v2v vp;
 	V2ASlash v2a ap	= mkVPSlash v2a ap;
 	V3Slash v3 np	= mkVPSlash v3 np;
+	V3Slash1 v3 np2	= Slash3V3 v3 np2;
 	reflexive slash = reflexiveVP slash;
 	ModInf cn vp = mkCN cn vp;
 	ModPass3 cn v3 np = myModPass3 cn v3 np;
 	-- ModSlInf cn vpslash = mkCN cn vpslash;
 	MassModInf n vp = mkCN( mkCN n) vp;
-	Modified cn rcl = mkCN cn ( mkRS rcl);
-	NegModified cn rcl = mkCN cn( mkRS negativePol rcl);
+	Modified cn rs = mkCN cn rs;
 	MassMod n rcl = myMassMod n (mkRS rcl);
 	SubjRel	rp vp = mkRCl rp vp;
 	ObjRel rp clslash = mkRCl rp clslash;
 	EmptyRel slash = EmptyRelSlash slash;
-	EmptyRelSlash slash = EmptyRelSlash slash;
+	MkRS t a p rcl	= mkRS t a p rcl;
+	EmptyRelVPSlash a p vpslash = {
+		s = \\ag => infVP VVInf vpslash False a.a p.p ag ;
+		c = NPAcc
+	};
 	DetRCltoNP det rcl	= myDetRCltoNP det rcl;
 	DetVPtoNP det vp = myDetVPtoNP det vp;
 	SubjGerund np vp	= myNPVPtoNP np vp;
 	InfinitiveNP vp = myInfinitiveNP vp;
-	FactNP cl = myCltoNP "the fact that" cl;
-	WayNP cl = myCltoNP "the way that" cl;
-	HowNP cl = myCltoNP "how" cl;
-	-- WhatNP cl = myCltoNP "what" cl;
-	WhyNP cl = myCltoNP "why" cl;
-	ThatNP cl	= myCltoNP "that" cl;
-	ThatNegNP cl = myNegCltoNP "that" cl;
+	FactNP s	= myStoNP "the fact that" s;
+	WayNP s	= myStoNP "the way that" s;
+	HowNP s	= myStoNP "how" s;
+	WhenNP s	= myStoNP "when" s;
+	WhetherNP s	= myStoNP "whether" s;
+	WhyNP s	= myStoNP "why" s;
+	ThatNP s	= myStoNP "that" s;
+	BecauseNP s	= myStoNP "because" s;
+	WhatNP rs	= myRStoNP "what" rs;
 	PartN v	= myPartN v;
-	Gerund vp = GerundNP vp;
+	Gerund vp = GerundCN vp;
 	GerundSlash vp = GerundCN vp;
 	ByGerund vp = ByVP vp;
 	SClSlash	np vpslash = mkClSlash np vpslash;
 	-- VPClSlash	vpslash = mkClSlash vpslash;
 	FreeICl ip vp = myFreeICl ip vp;
 	FreeIClSlash ip cl = myFreeIClSlash ip cl;
+	IAdvAdv, IAdvAdv_time	= \iadv,adv	-> mkIAdv iadv adv;
 	IAdvA iadv a = myIAdvA iadv a;
 	FreeInfICl iadv vp = myFreeInfICl iadv vp;
 	FreeInfCl vp	= myFreeInfCl vp;
@@ -580,13 +619,13 @@ lin
 	VP_Adv_time vp pp = mkVP vp pp;
 	VP_Adv_location vp located = mkVP vp located;
 	VP_Adv_result vp result = mkVP vp result;
+	VP_Adv_copatient vp copatient = mkVP vp copatient;
 	VP_Adv_extent vp extent = mkVP vp extent;
 	VP_Adv_attribute vp attribute = mkVP vp attribute;
 	VP_Adv_stimulus vp stimulus	= mkVP vp stimulus;
 	VP_Adv_product vp product	= mkVP vp product;
 	VP_Adv_goal vp goal	= mkVP vp goal;
-	VP_Adv_beneficiary vp beneficiary	= mkVP vp beneficiary;
-	VP_Adv_trajectory vp trajectory	= mkVP vp trajectory;
+	VP_Adv_beneficiary, VP_Adv_recipient, VP_Adv_trajectory, VP_Adv_value	= \vp,adv -> mkVP vp adv;
 	VP_Adv_cause vp cause = mkVP vp cause;
 	WithCl vp cl = mkVP vp cl;
 	VPToo vp = myVPPlus vp "too";
@@ -607,21 +646,28 @@ lin
 	WHose cn = mkIP (GenIP who_WH) cn;
 	IPhrase idet cn = mymkIPhrase idet cn;
 	WH_ClSlash ip cslash	= mkQCl ip cslash;
+	IAdvComp iadv np	= mkQCl iadv np;
 	IAdvQCl iadv cl	= mkQCl iadv cl;
 	IAdvInfICl iadv vp	= myInfICl iadv vp;
-	PosQ qcl	= mkQS qcl;
-	NegQ qcl	= mkQS negativePol qcl;
-	PosS cl	= mkS cl;
-	NegS cl	= mkS negativePol cl;
+	MkQS t a p qcl = myMkQS t a p qcl;
+	MkS t a p cl = myMkS t a p (ODir False) cl;
+	presentTense	= presentTense;
+	pastTense	= pastTense;
+	futureTense	= futureTense;
+	conditionalTense	= conditionalTense;
+	simultaneousAnt	= simultaneousAnt;
+	anteriorAnt	= anteriorAnt;
+	positivePol	= positivePol;
+	negativePol	= negativePol;
 	QUt q	= mkUtt q;
-	Ut s	= mkUtt s;
+	-- Ut s	= mkUtt s;
 	Sentence subject predicate	= mkCl subject predicate;
 	Exist np = mkCl np;
 
-	Yes	= yes_Utt;
-	No	= no_Utt;
-	NoAnswer	= ss "No answer";
-	Answer np = mkUtt np;
+	-- Yes	= yes_Utt;
+	-- No	= no_Utt;
+	-- NoAnswer	= ss "No answer";
+	-- Answer np = mkUtt np;
 
 	Inject i = mkSC( mkUtt i);
 
@@ -629,19 +675,25 @@ lin
 	Kind ap cn	= mkCN ap cn;
 	MassKind ap n = mymkAP_N ap n;
 	Something ap = mySomething ap;
-	KindOfKind cn adv	= mkCN cn adv;
+	KindOfKind cn adv	= myAdvCN cn adv;
 	MassKindOfKind n adv	= mymkN_Adv n adv;
-  KindInTime cn adv	= mkCN cn adv;
+	KindInTime cn adv	= myAdvCN cn adv;
+	MassKindInTime n adv	= mymkN_Adv n adv;
 	KindOfTime adj cn	= mkCN adj cn;
-	TimeInTime cn adv = mkCN cn adv;
+	TimeInTime cn adv = myAdvCN cn adv;
 	TimeAsAdv det cn = mkAdv P.noPrep (mkNP det cn);
 	TimeAsAdvWithPredet predet det cn = mkAdv P.noPrep (mkNP predet (mkNP det cn) );
-	KindInPlace cn adv	= mkCN cn adv;
+	AdvTime adv time	= ParadigmsEng.mkAdv (adv.s ++ time.s);
+	KindInPlace cn adv	= myAdvCN cn adv;
 	NPInPlace np adv = mkNP np adv;
 	PlaceKind ap n = mkCN ap n;
-	KindToExtent cn adv	= mkCN cn adv;
+	PlaceOfNP n2 np = mkCN n2 np;
+	KindToExtent cn adv	= myAdvCN cn adv;
 	Membership det cn place = mkCl( Item det (KindInPlace cn place));
-	CompoundCN cn1 cn2 = CompoundCN cn1 cn2;
+	CompoundCN cn1 cn2 = CompoundN cn1 cn2;
+	CompoundNCN n cn = CompoundN n cn;
+	ApposCN cn np = {s = \\n,c => cn.s ! n ! Nom ++ np.s ! NCase c ; g = cn.g};
+	CompoundNP np1 np2 = myApposNP np1 "" np2;
 	PN_CN pn cn	= { s = \\n,c => pn.s ! Nom ++ cn.s ! n ! c;
 		g = cn.g };
 	Ofpos n2 np	= mkCN n2 np;
@@ -655,14 +707,14 @@ lin
 	PredetItem predet np	= mkNP predet np;
 	ApposNP np1 np2 = myApposNP np1 "," np2;
 	ApposPlace p1 p2 = myApposPlace p1 "," p2;
-	NPPostPredet np predet = myNPPostPredet np predet;
+	NPPostdet np postdet = myNPPostdet np postdet;
 
 	a_DET	= a_Det;
 	zero_Det_pl	= aPl_Det;
 	zero_Det_sg	= mkDet zero_mass_Quant singularNum;
 	the_MASS_DET	= theSg_Det;
 	some_MASS_DET = mkDet some_Quant singularNum;
-	any_MASS_DET = mkDet any_Quant singularNum;
+	any_MASS_DET = mkDet myAny_Quant singularNum;
 	more_MASS_DET	= mkDet more_Quant singularNum;
 	more_NP = mkNP( mkDet more_Quant);
 	the_SG_DET	= theSg_Det;
@@ -695,15 +747,9 @@ lin
 	APList np1 np2 = mkListAP np1 np2;
 	AddAP ap list = mkListAP ap list;
 	CloseAP conj list = mkAP conj list;
-	AdvList np1 np2 = mkListAdv np1 np2;
-	AddAdv ap list = mkListAdv ap list;
-	CloseAdv conj list = mkAdv conj list;
-	Adv_mannerList np1 np2 = mkListAdv np1 np2;
-	AddAdv_manner ap list = mkListAdv ap list;
-	CloseAdv_manner conj list = mkAdv conj list;
-	Adv_resultList adv1 adv2 = mkListAdv adv1 adv2;
-	AddAdv_result adv list = mkListAdv adv list;
-	CloseAdv_result conj list = mkAdv conj list;
+	AdvList, Adv_mannerList, Adv_resultList, Adv_timeList	= \adv1,adv2 -> mkListAdv adv1 adv2;
+	AddAdv, AddAdv_manner, AddAdv_result, AddAdv_time	= \ adv,list -> mkListAdv adv list;
+	CloseAdv, CloseAdv_manner, CloseAdv_result, CloseAdv_time	= \conj,list -> mkAdv conj list;
 	ConcatS	conj s1 s2 = mkS conj s1 s2;
 	PreConjUtt conj utt = mkPhr (mkPConj conj) utt;
 
@@ -727,12 +773,24 @@ lin
 
 	who_WH	= mymkIP "who" "who" "whose" Sg;
 	what_WH	= whatSg_IP;
+	what_WH_PL	= whatPl_IP;
 	what_PL_IDET = { s = "what"; n = Pl };
 	which_SG_IDET = { s = "which"; n = Sg };
 	which_PL_IDET = { s = "which"; n = Pl };
 	how_WH	= how_IAdv;
   why_WH	= why_IAdv;
-	that_RP	= ExtraEng.that_RP;
+	where_WH	= where_IAdv;
+  that_RP =
+     { s = table {
+        RC _ (NCase Gen) | RC _ NPNomPoss => "whose" ;
+        RC Neutr _  => "that" ;
+        RC _ NPAcc    => "that" ;
+        RC _ (NCase Nom)    => "that" ;
+        RPrep Neutr => "which" ;
+        RPrep _     => "who"
+        } ;
+      a = RNoAg
+      } ;
 	who_RP	= mymkRP "who" "which" "whose";
 	-- in_which	=mkRP in_prep which_RP;
 	where_RP	= mymkRP "where" "where" "where";
@@ -740,6 +798,8 @@ lin
 	whose_SG_RP cn = GenRP singularNum cn;
 	whose_PL_RP cn = GenRP pluralNum cn;
 
+	PositA a = mkAP a;
+	PositAdvAdj a	= mkAdv a;
 	more	= more_CAdv;
 	ComparaAP a np = mkAP a np;
 	ComparaAdv cadv a np = mkAdv cadv a np;
@@ -747,15 +807,16 @@ lin
 	ComparaS a s = mkAP a s;
 	AdjModified	a s = mkAP a s;
 	As_as ap np	= mkAP as_CAdv ap np;
+	As_asS adj s	= ComparAdvAdjS as_CAdv adj s;
 	AdvAdj adv adj = mkAP adv adj;
 	A_PP a np = mkAP a np;
+	reflAP a	= reflAP a;
 	A_Adv_location a pl	= myAPinPlace a pl;
 	VP_AP vp = PresPartAP vp;
 	VPSlash_AP vp = PastPartAP vp;
 	VP_NP_AP vp np = PastPartAgentAP vp np;
 
   about_PREP	= P.mkPrep "about";
-  at_PREP	= P.mkPrep "at";
 	before_PREP	= P.mkPrep "before";
   from_PREP	= P.mkPrep "from";
 	of_PREP	= possess_Prep;
@@ -766,6 +827,9 @@ lin
 	thing	= mkCN( P.mkN Neutr ( P.mkN "thing"));
 
 	can	= can_VV;
+	would	= ModalVV "would" "wouldn't" "would not";
+	should	= ModalVV "should" "shouldn't" "should not";
+	do	= IrregEng.do_V;
 	have	= P.mkV2 IrregEng.have_V;
 	know_V2	= P.mkV2 know_V;
 	know_VS	= P.mkVS know_V;
@@ -779,6 +843,8 @@ lin
 	when_SUBJ = when_Subj;
 	so_SUBJ	= P.mkSubj "so";
 	or_CONJ	= or_Conj;
+	and_CONJ	= mymkConj "and";
+
 
 	Subjunct subj s	= mkAdv subj s;
 
