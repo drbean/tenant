@@ -1,4 +1,4 @@
-concrete MyConcrete of MyAbstract = CatEng, ConjunctionEng ** open ResEng, Prelude, SyntaxEng, (P = ParadigmsEng), VerbEng, ExtraEng, IrregEng, ExtensionsEng in {
+concrete MyConcrete of MyAbstract = CatEng, ConjunctionEng ** open ResEng, Prelude, SyntaxEng, (P = ParadigmsEng), VerbEng, AdjectiveEng, AdverbEng, IrregEng, ExtendEng, IdiomEng, SentenceEng in {
 
 lincat
 	NounCl = {s : ResEng.Tense => Anteriority => CPolarity => Order => Str; c : NPCase };
