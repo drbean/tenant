@@ -54,11 +54,13 @@ fun
 
 -- PN
 
+	mr_harris	: PN;
+	carl_harris	: PN;
+	carl	: PN;
 	heather	: PN;
 	ms_forman	: PN;
 	heather_forman	: PN;
 	mrs_taylor	: PN;
-	mrs_harris	: PN;
 	mr_won	: PN;
 	mr_two	: PN;
 
