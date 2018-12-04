@@ -1,7 +1,7 @@
 --# -path=.:./engine:alltenses
 
 concrete TenantEng of Tenant = MyConcrete  **
-open ConstructorsEng, ParadigmsEng, StructuralEng, IrregEng, ExtraEng, ConstructX, Prelude, (R=ResEng) in {
+open ConstructorsEng, ParadigmsEng, StructuralEng, IrregEng, ConstructX, Prelude, (R=ResEng) in {
 
 -- oper
 
