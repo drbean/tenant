@@ -39,7 +39,7 @@ trans = id
 
 run f tests = do
   gr' <- gr
-  let Just eng = Map.lookup "CustomEng" (languages gr')
+  let Just eng = Map.lookup "TenantEng" (languages gr')
   let ss = map (chomp . lc_first) tests
   let p =  parse eng (startCat gr')
   let Just incompleteparse = readExpr "ParseIncomplete"
@@ -93,8 +93,8 @@ fol tests = do
 
 dic_test = [
 
-	"Jack Burr's refrigerator doesn't need fixing."
-	, "Jack Burr's oven keeps burning everything he tries to cook."
+	"Heather Forman's refrigerator doesn't need fixing."
+	, "Heather Forman's oven keeps burning everything she tries to cook."
 	, "The oven's temperature control needs to be adjusted."
 	, "The building manager promises to get someone to look at it."
 	, "The electricity in Mrs Harris's apartment keeps going on and off."
