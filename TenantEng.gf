@@ -1,4 +1,4 @@
---# -path=.:./engine:/home/drbean/GF/lib/src/translator:present
+--# -path=.:./engine:alltenses
 
 concrete TenantEng of Tenant = MyConcrete  **
 open ConstructorsEng, ParadigmsEng, StructuralEng, IrregEng, ExtraEng, ConstructX, Prelude, (R=ResEng) in {
