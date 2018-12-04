@@ -55,6 +55,7 @@ cat
 	NounCl;
 	ListAdv_manner;
 	ListAdv_result;
+	ListAdv_time;
 
 fun
 	Look_bad	: VA -> AP -> VP;
