@@ -99,7 +99,7 @@ dic_test = [
 	, "The building manager promises to get someone to look at it."
 	, "The electricity in Carl Harris's apartment keeps going on and off."
 	, "The building manager guesses Mr Harris’s fuse box needs to be checked."
-	, "The building manager goes to Mrs Harris's apartment and he looks at it right away."
+	, "The building manager goes to Mr Harris's apartment and he looks at it right away."
 	, "The light out front of the building is out."
 	, "The building manager wants to help, but he is busy and he doesn’t have his ladder."
 	, "Mr Won says he can fix the light."
@@ -107,10 +107,10 @@ dic_test = [
 	, "Mr Two wants the building manager to do something about his neighbor's dog, which barks all night."
 	, "The building manager doesn't want to go near the dog."
 	, "The building manager promises to call Mr Two's neighbor to ask him to keep the dog quiet."
-	, "Mrs Taylor cannot open her kitchen window."
+	, "Mrs Threet cannot open her kitchen window."
 	, "The kitchen window is jammed shut"
 	, "The building manager says he can't help her."
-	, "Mrs Taylor says her cousin can help her open the window."
+	, "Mrs Threet says her cousin can help her open the window."
 	, "Some tenants have complaints and the building manager promises to fix some of their problems."
 
 

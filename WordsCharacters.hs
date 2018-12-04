@@ -177,7 +177,7 @@ Mr Won	: PN;
 Carl	: PN;
 Carl Harris	: PN;
 Mr Harris	: PN;
-Mrs Taylor	: PN;
+Mrs Threet	: PN;
 near	: LocPrep;
 need	: VV;
 need_V2	: V2;
