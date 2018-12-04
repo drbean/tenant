@@ -524,7 +524,7 @@ lin
 	Instrumenting prep instrument = mkAdv prep instrument;
 	Themeing prep instrument = mkAdv prep instrument;
 	Mannering prep style = mkAdv prep style;
-	Timing prep det time = mkAdv prep (Item det time);
+	Timing prep np = mkAdv prep np;
 	Sourcing prep source = mkAdv prep source;
 	Resulting prep result = mkAdv prep result;
 	Patienting prep result = mkAdv prep result;
