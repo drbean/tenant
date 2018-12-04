@@ -56,11 +56,13 @@ lin
 
 -- PN
 
+	mr_harris	= mkPN( mkN masculine (mkN "Mr Harris") );
+	carl_harris	= mkPN( mkN masculine (mkN "Carl Harris") );
+	carl	= mkPN( mkN masculine (mkN "Carl") );
 	heather	= mkPN( mkN feminine (mkN "Heather") );
 	ms_forman	= mkPN( mkN feminine (mkN "Ms Forman") );
 	heather_forman	= mkPN( mkN feminine (mkN "Heather Forman") );
 	mrs_taylor	= mkPN( mkN feminine (mkN "Mrs Taylor") );
-	mrs_harris	= mkPN( mkN feminine (mkN "Mrs Harris") );
 	mr_won	= mkPN( mkN masculine (mkN "Mr Won") );
 	mr_two	= mkPN( mkN masculine (mkN "Mr Two") );
 
