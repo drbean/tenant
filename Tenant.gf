@@ -79,7 +79,7 @@ fun
 
 -- V
 
-	do	: V3;
+	do_about	: V3;
 	want_V2V	: V2V;
 	need_V2	: V2;
 	want	: VV;

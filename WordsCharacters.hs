@@ -144,7 +144,7 @@ can't
 check	: V2;
 cook	: V2;
 cousin	: CN;
-do	: V3;
+do_about	: V3;
 dog	: CN;
 dog	: PlaceNoun;
 electricity	: N;
