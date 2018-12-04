@@ -4,13 +4,13 @@ import Control.Monad
 import Data.Maybe
 import Data.Char
 import Data.List
+import qualified Data.Map as Map
 
 import Data.DRS
 
-import PGF
+import PGF2
 import Tenant
-import Representation
-import Evaluation
+import Utility
 import Model
 
 -- handler gr core tests = putStr $ unlines $ map (\(x,y) -> x++show y) $ zip (map (++"\t") tests ) ( map (\string -> map (\x -> core ( x) ) (parse gr (mkCId "DicksonEng") (startCat gr) string)) tests )
@@ -20,46 +20,40 @@ import Model
 gr :: IO PGF
 gr = readPGF "./Tenant.pgf"
 
-langs :: IO [Language]
-langs = liftM languages gr
-
-lang :: IO Language
-lang = liftM head langs
-
-morpho :: IO Morpho
-morpho = liftM2 buildMorpho gr lang
-
-liftOp :: Monad m => (a -> b -> c) -> m a -> b -> m c
-liftOp f a b = a >>= \a' -> return (f a' b)
-
-miss :: [String] -> IO [String]
-miss ws =
-	liftOp morphoMissing morpho ws
-
 cat2funs :: String -> IO ()
 cat2funs cat = do
-	gr' <- gr
-	let fs = functionsByCat gr' (mkCId cat)
-	let ws = filter (isLower . head . showCId) fs
-	let is = map (reverse . dropWhile (\x ->  (==) x '_' || isUpper x) . reverse .showCId ) ws
-	putStrLn (unwords is)
+  gr' <- gr
+  let fs = functionsByCat gr' (show cat)
+  let ws = filter (isLower . head . show) fs
+  let is = map (reverse . dropWhile (\x ->  (==) x '_' || isUpper x) . reverse .show ) ws
+  putStrLn (unwords is)
 
 catByPOS :: String -> IO ()
 catByPOS  pos = do
-	gr' <- gr
-	let allCats = categories gr'
-	let cats = filter (isPrefixOf pos . showCId) allCats
-	putStrLn (unwords (map showCId cats))
+  gr' <- gr
+  let allCats = categories gr'
+  let cats = filter (isPrefixOf pos . show) allCats
+  putStrLn (unwords (map show cats))
 
 trans = id
 
 run f tests = do
-  gr	<- readPGF "./Tenant.pgf"
+  gr' <- gr
+  let Just eng = Map.lookup "CustomEng" (languages gr')
   let ss = map (chomp . lc_first) tests
-  let ps = map ( parses gr ) ss
-  let ts = map f ps
-  let zs = zip (map (++"\t") tests) (map (map (showExpr []) ) ts)
+  let p =  parse eng (startCat gr')
+  let Just incompleteparse = readExpr "ParseIncomplete"
+  let Just noaccountfail = readExpr "ParseFailed somewhere"
+  let failingparse n string = fromMaybe noaccountfail (readExpr ("ParseFailed at " ++ (show n) ++ " " ++ string))
+  let t p = case p of
+        ParseOk ((e,prob):rest) -> e
+        (ParseFailed offset token) -> failingparse offset token
+        ParseIncomplete -> incompleteparse
+  let ts = map (t . p) ss
+  let zs = zip (map (++"\t") tests) ts
   putStrLn (unlines (map (\(x,y) -> x ++ (show y ) ) zs) )
+
+{-
 
 ans tests = do
   gr	<- readPGF "./Tenant.pgf"
@@ -80,20 +74,22 @@ reps tests = do
   putStrLn (unlines (map (\(x,y) -> x ++ (show y ) ) zs) )
 
 lf tests = do
-	gr	<- readPGF "./Tenant.pgf"
-	let ss = map (chomp . lc_first) tests
-	let ps = map ( parses gr ) ss
-	let ts = map (map (\p -> drsToLF (((unmaybe . rep) p) (DRSRef "r1"))) ) ps
-	let zs = zip (map (++"\t") tests) ts
-	putStrLn (unlines (map (\(x,y) -> x ++ (show y ) ) zs) )
+  gr  <- readPGF "./Tenant.pgf"
+  let ss = map (chomp . lc_first) tests
+  let ps = map ( parses gr ) ss
+  let ts = map (map (\p -> drsToLF (((unmaybe . rep) p) (DRSRef "r1"))) ) ps
+  let zs = zip (map (++"\t") tests) ts
+  putStrLn (unlines (map (\(x,y) -> x ++ (show y ) ) zs) )
 
 fol tests = do
-	gr	<- readPGF "./Tenant.pgf"
-	let ss = map (chomp . lc_first) tests
-	let ps = map ( parses gr ) ss
-	let ts = map (map (\p -> drsToFOL ( (unmaybe . rep) p (term2ref drsRefs var_e) ) ) ) ps
-	let zs = zip (map (++"\t") tests) ts
-	putStrLn (unlines (map (\(x,y) -> x ++ (show y ) ) zs) )
+  gr  <- readPGF "./Tenant.pgf"
+  let ss = map (chomp . lc_first) tests
+  let ps = map ( parses gr ) ss
+  let ts = map (map (\p -> drsToFOL ( (unmaybe . rep) p (term2ref drsRefs var_e) ) ) ) ps
+  let zs = zip (map (++"\t") tests) ts
+  putStrLn (unlines (map (\(x,y) -> x ++ (show y ) ) zs) )
+
+-}
 
 dic_test = [
 
