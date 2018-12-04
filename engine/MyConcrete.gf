@@ -520,21 +520,7 @@ lin
   Locating prep item	= mkAdv prep item;
 	Location det placename = mkNP det placename;
 	NamedPlace pn	= mkNP pn;
-	Coagency prep coagent	= mkAdv prep coagent;
-	Instrumenting prep instrument = mkAdv prep instrument;
-	Themeing prep instrument = mkAdv prep instrument;
-	Mannering prep style = mkAdv prep style;
-	Timing prep np = mkAdv prep np;
-	Sourcing prep source = mkAdv prep source;
-	Resulting prep result = mkAdv prep result;
-	Patienting prep result = mkAdv prep result;
-	Copatienting prep result = mkAdv prep result;
-	Extenting prep degree	=mkAdv prep degree;
-	Attributing prep attribute	= mkAdv prep attribute;
-	Stimulating prep stimulus	= mkAdv prep stimulus;
-	Producing prep product	= mkAdv prep product;
-	Goaling, Benefiting
-	, Receiving, Trajectoring, Causing = \prep, np -> mkAdv prep np;
+	Attributing, Benefiting, Causing, Coagency, Copatienting, Extenting, Goaling, Instrumenting, Mannering, Patienting, Producing, Receiving, Resulting, Sourcing, Stimulating, Themeing, Timing, Trajectoring = \prep, np -> mkAdv prep np;
 	V_ action	=	mkVP action;
 	V_NP v2 patient	= mkVP v2 patient;
 	V_NP_VP causal patient predicate	= mkVP causal patient predicate;
