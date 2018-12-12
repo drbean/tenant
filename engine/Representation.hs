@@ -4,7 +4,7 @@ import Data.DRS
 import Data.DRS.Show
 
 import Tenant
-import PGF
+import PGF2
 
 import Model
 import Interpretation
@@ -50,7 +50,7 @@ lin :: Gf a => a -> String
 lin e = stripApp (unApp (gf e))
 
 stripApp :: Maybe (CId, [Expr]) -> String
-stripApp = maybe "Undefined" (showCId . fst)
+stripApp = maybe "Undefined" (show . fst)
 
 linNP :: GNP -> String
 linNP (GEntity name) = lin name
