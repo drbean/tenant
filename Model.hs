@@ -15,31 +15,31 @@ entities	=  [minBound..maxBound]
 entity_check :: [ (Entity, String) ]
 entity_check =  [
   (A, "" )
-  , (B, "" )
-  , (C, "" )
-  , (D, "" )
-  , (E, "" )
-  , (F, "" )
-  , (G, "" )
-  , (H, "" )
+  , (B, "lightbulb" )
+  , (C, "harris" )
+  , (D, "dog" )
+  , (E, "threet" )
+  , (F, "frost" )
+  , (G, "fusebox" )
+  , (H, "forman" )
   , (I, "" )
-  , (J, "" )
-  , (K, "" )
-  , (L, "" )
-  , (M, "" )
-  , (N, "" )
+  , (J, "ladder" )
+  , (K, "window" )
+  , (L, "leroy" )
+  , (M, "light" )
+  , (N, "neighbor" )
   , (O, "" )
   , (P, "" )
   , (Q, "" )
   , (R, "" )
-  , (S, "" )
-  , (T, "" )
+  , (S, "cousin" )
+  , (T, "two" )
   , (U, "" )
   , (V, "" )
-  , (W, "" )
+  , (W, "won" )
   , (X, "" )
   , (Y, "" )
-  , (Z, "" )
+  , (Z, "ladder" )
   ]
 
 ent_ided :: String -> Entity
@@ -79,40 +79,17 @@ predid5 name
 
 onePlacers, onePlaceStarters, entityonePlacers :: [(String, [Entity])]
 onePlaceStarters = [
-  ("true",        entities )
-  , ("false",     [] )
-  , ("role",      [] )
+	("true",				entities )
+	, ("false",			[] )
+	, ("role",			[] )
 
-  , ("manager",	 [E,F] )
-  , ("individual",	 [E,F,B,G] )
-  , ("people",	 [E,F,B,G,M,W] )
-  , ("framework",	 [A] )
-  , ("company",	 [I] )
-  , ("work",	 [A,J] ++ map agent working )
-  , ("worker",	 map agent working )
-
-  , ("assertive",	 [] )
-  , ("bad",	 [N,Q,O,V,X,Y,K] )
-  , ("best_placed",	 [E,F] )
-
-  , ("cause_of",	 [N,O,P,V] )
-  , ("characteristic",	 [D,R,T,V] )
-  , ("common",	 [X,Y,N,O,V,Q] )
-  , ("critically_important",	 [A,D,T] )
-  , ("day_to_day",	 [R] )
-  , ("difficult",	 [] )
-  , ("effective",	 [A] )
-  , ("good",	 [T,E,J] )
-  , ("helpless",	 [M,W] )
-  , ("unsupported",	 [M,W] )
-  , ("high",	 [Y] )
-  , ("little",	 [D,T] )
-
-  , ("stressful",	 [N,O,Q,V] )
-  , ("male",	 [B,M,E] )
-  , ("female",	 [G,W,F] )
-  , ("strategy",	 [J,K] )
-  ]
+	, ("manager",	 [L,F] )
+	, ("individual",	 [L,F,H,C,H,W,T] )
+	, ("people",	 [L,F,H,C,H,W,T] )
+	, ("busy",	 [F] )
+	, ("male",	 [F,T] )
+	, ("female",	 [W,T] )
+	]
 
 onePlacers = 
 	entityonePlacers ++ onePlaceStarters
@@ -122,7 +99,6 @@ predid1 "person"	= Just person
 predid1 "thing"	= Just thing
 predid1 "man"	= predid1 "male"
 
-predid1 "poor"  = predid1 "bad"
 predid1 "women"  = predid1 "female"
 predid1 "men"  = predid1 "male"
 
@@ -160,7 +136,7 @@ test1 :: String -> OnePlacePred
 test1 p = fromMaybe (\_ -> False) (predid1 p)
 
 person, thing :: OnePlacePred
-person	= \ x -> (test1 "male" x || test1 "female" x || test1 "role" x || x == Someone)
+person	= \ x -> (test1 "male" x || test1 "female" x ||  x == Someone)
 thing	= \ x -> (x == Unspec || x == Something || not ( person x ) )
 
 pred2 :: [(Entity,Entity)] -> TwoPlacePred
@@ -263,8 +239,8 @@ threePlacers, threePlaceStarters :: [(String, ThreePlacePred)]
 threePlaceStarters = [
     ]
 threePlacers =
-	(genthreePlacer event "ask_V2Q" "ask" Agent Recipient Predicate) :
-	genthreePlacer event "tell" "state" Agent Recipient Predicate :
+	(genthreePlacer event "ask" "ask" Agent Recipient Result) :
+	genthreePlacer event "call" "call" Agent Recipient Result :
 	threePlaceStarters
 
 threePlaceStartrs = [
