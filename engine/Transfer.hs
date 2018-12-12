@@ -2,32 +2,19 @@ module Main where
 
 import PGF2
 import Tenant
-import Utility (lc_first, chomp, leading_space, be_morphology)
 import LogicalForm hiding ((==))
--- import Evaluation
+import Evaluation
 
---import Model
+import Model
 import WordsCharacters
 
 import Data.Maybe
 import Control.Monad
 import Data.List.Split
 import Data.List
-import qualified Data.Map as Map
-
-import GHC.IO.Handle
-import System.IO
-
-import System.Environment.FindBin
 
 main :: IO ()
 main = do
-	path <- getProgPath
-	gr <- readPGF ( path ++ "/Tenant.pgf" )
-	let Just eng = Map.lookup "TenantEng" (languages gr)
-	let morpho = map fst (fullFormLexicon eng) ++ be_morphology
-	hClose stderr
-	hDuplicateTo stdout stderr
 	s <- getLine
 	let l = (chomp . lc_first . leading_space) s
 	let unknown = unwords (filter (flip notElem morpho) (words l))
