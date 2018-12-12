@@ -646,14 +646,14 @@ lin
 	positivePol	= positivePol;
 	negativePol	= negativePol;
 	QUt q	= mkUtt q;
-	-- Ut s	= mkUtt s;
+	Ut s	= mkUtt s;
 	Sentence subject predicate	= mkCl subject predicate;
 	Exist np = mkCl np;
 
-	-- Yes	= yes_Utt;
-	-- No	= no_Utt;
-	-- NoAnswer	= ss "No answer";
-	-- Answer np = mkUtt np;
+	Yes	= yes_Utt;
+	No	= no_Utt;
+	NoAnswer	= ss "No answer";
+	Answer np = mkUtt np;
 
 	Inject i = mkSC( mkUtt i);
 

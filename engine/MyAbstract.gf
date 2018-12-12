@@ -218,12 +218,12 @@ fun
 	negativePol	: Pol;
 	MkS	: Tense -> Ant -> Pol -> Cl -> S;
 	QUt	: QS -> Utt;
-	-- Ut	: S -> Utt;
+	Ut	: S -> Utt;
 	Sentence	: NP -> VP -> Cl;
 	Exist	: NP -> Cl;
 
-	-- Yes, No, NoAnswer	: Utt;
-	-- Answer : NP -> Utt;
+	Yes, No, NoAnswer	: Utt;
+	Answer : NP -> Utt;
 
 	Inject	: Interj -> SC;
 
