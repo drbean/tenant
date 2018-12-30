@@ -61,7 +61,7 @@ fun
 	heather	: PN;
 	ms_forman	: PN;
 	heather_forman	: PN;
-	mr_won	: PN;
+	mrs_won	: PN;
 	mr_two	: PN;
 
 -- Prep

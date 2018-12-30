@@ -63,7 +63,7 @@ lin
 	heather	= mkPN( mkN feminine (mkN "Heather") );
 	ms_forman	= mkPN( mkN feminine (mkN "Ms Forman") );
 	heather_forman	= mkPN( mkN feminine (mkN "Heather Forman") );
-	mr_won	= mkPN( mkN masculine (mkN "Mr Won") );
+	mrs_won	= mkPN( mkN feminine (mkN "Mrs Won") );
 	mr_two	= mkPN( mkN masculine (mkN "Mr Two") );
 
 -- Prep
